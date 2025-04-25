@@ -224,4 +224,22 @@ public static class ServiceCollectionExtensions
     }
 
     #endregion
+    
+    #region Management
+
+    public static IServiceCollection RemoveAll<T>(this IServiceCollection services, string name)
+    {
+        return services.RemoveAll(typeof(T), name);
+    }
+
+    public static IServiceCollection RemoveAll(this IServiceCollection services, Type serviceType, string name)
+    {
+        Type registrationType = RegistrationTypeManager.GetRegistrationWrapperType(serviceType, name, false);
+        if (registrationType == null)
+            return services;
+
+        return services.RemoveAll(registrationType);
+    }
+
+    #endregion
 }
