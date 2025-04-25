@@ -50,6 +50,11 @@ Adding services:
 * `TryAddTransient<TService>(string name)`
 * `TryAddTransient<TService, TImplementation>(string name)`
 
+Removing services:
+
+* `RemoveAll<TService>(this IServiceCollection services, string name)`
+* `RemoveAll(this IServiceCollection services, Type serviceType, string name)`
+
 Retrieving services from a `ServiceProvider`:
 
 * `T GetService<T>(this IServiceProvider provider, string name)`
