@@ -56,6 +56,23 @@ public class MultipleServicesTests
     }
 
     [Fact]
+    public void GetAllNamedServices_CrossDIContamination()
+    {
+        _ = new ServiceCollection()
+            .AddSingleton<ITypeBase>("first", _ => new TypeA())
+            .BuildServiceProvider(true);
+
+        ServiceProvider provider = new ServiceCollection()
+            .AddSingleton<ITypeBase>("second", _ => new TypeA())
+            .BuildServiceProvider(true);
+
+        List<(string name, ITypeBase service)> services = provider.GetNamedServices<ITypeBase>().ToList();
+
+        Assert.Single(services);
+        Assert.Contains(services, element => element.name == "second" && element.service is TypeA);
+    }
+
+    [Fact]
     public void GetAllNamedServices()
     {
         ServiceProvider provider = new ServiceCollection()

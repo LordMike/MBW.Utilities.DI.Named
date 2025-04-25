@@ -21,14 +21,17 @@ public static class ServiceProviderExtensions
 
     public static IEnumerable<(string name, T service)> GetNamedServices<T>(this IServiceProvider provider)
     {
-        IEnumerable<(string name, Type registrationType)> registrationTypes = RegistrationTypeManager.GetRegistrationTypesAndNames(typeof(T));
+        IEnumerable<(string name, Type registrationType)> registrationTypes =
+            RegistrationTypeManager.GetRegistrationTypesAndNames(typeof(T));
 
-        return registrationTypes
-            .Select(s =>
-            {
-                RegistrationWrapper wrapperService = (RegistrationWrapper)provider.GetService(s.registrationType);
-                return (s.name, wrapperService.GetInstance<T>(provider));
-            });
+        foreach ((string name, Type registrationType) registrationType in registrationTypes)
+        {
+            RegistrationWrapper wrapperService = (RegistrationWrapper)provider.GetService(registrationType.registrationType);
+            if (wrapperService == null)
+                continue;
+
+            yield return (registrationType.name, wrapperService.GetInstance<T>(provider));
+        }
     }
 
     public static T GetRequiredService<T>(this IServiceProvider provider, string name)
@@ -48,7 +51,8 @@ public static class ServiceProviderExtensions
         if (registrationType == null)
             return Enumerable.Empty<T>();
 
-        IEnumerable<RegistrationWrapper> wrapperServices = provider.GetServices(registrationType).Cast<RegistrationWrapper>();
+        IEnumerable<RegistrationWrapper> wrapperServices =
+            provider.GetServices(registrationType).Cast<RegistrationWrapper>();
         return wrapperServices.Select(s => s.GetInstance<T>(provider));
     }
 }
